@@ -1411,8 +1411,8 @@ ClusterManagerImpl::ThreadLocalClusterManagerImpl::ClusterEntry::connPool(
 
   // If configured, use the downstream connection id in pool hash key
   if (cluster_info_->connectionPoolPerDownstreamConnection() && context &&
-          ENVOY_LOG(debug, "hello? cf debuggin line 1414");
       context->downstreamConnection()) {
+    ENVOY_LOG(debug, "hello? cf debuggin line 1414");
     context->downstreamConnection()->hashKey(hash_key);
   }
 
