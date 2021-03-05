@@ -975,6 +975,7 @@ Host::CreateConnectionData ClusterManagerImpl::tcpConnForCluster(const std::stri
     throw EnvoyException(fmt::format("unknown cluster '{}'", cluster));
   }
 
+  ENVOY_LOG(debug, "hello? cf debugging line 978");
   HostConstSharedPtr logical_host = entry->second->lb_->chooseHost(context);
   if (logical_host) {
     auto conn_info = logical_host->createConnection(
@@ -1375,6 +1376,7 @@ Http::ConnectionPool::Instance*
 ClusterManagerImpl::ThreadLocalClusterManagerImpl::ClusterEntry::connPool(
     ResourcePriority priority, absl::optional<Http::Protocol> downstream_protocol,
     LoadBalancerContext* context, bool peek) {
+  ENVOY_LOG(debug, "hello? cf debuggin line 1379");
   HostConstSharedPtr host = (peek ? lb_->peekAnotherHost(context) : lb_->chooseHost(context));
   if (!host) {
     ENVOY_LOG(debug, "no healthy host for HTTP connection pool");
@@ -1409,6 +1411,7 @@ ClusterManagerImpl::ThreadLocalClusterManagerImpl::ClusterEntry::connPool(
 
   // If configured, use the downstream connection id in pool hash key
   if (cluster_info_->connectionPoolPerDownstreamConnection() && context &&
+          ENVOY_LOG(debug, "hello? cf debuggin line 1414");
       context->downstreamConnection()) {
     context->downstreamConnection()->hashKey(hash_key);
   }
@@ -1435,6 +1438,7 @@ ClusterManagerImpl::ThreadLocalClusterManagerImpl::ClusterEntry::connPool(
 Tcp::ConnectionPool::Instance*
 ClusterManagerImpl::ThreadLocalClusterManagerImpl::ClusterEntry::tcpConnPool(
     ResourcePriority priority, LoadBalancerContext* context, bool peek) {
+  ENVOY_LOG(debug, "hello? cf debuggin line 1438");
   HostConstSharedPtr host = (peek ? lb_->peekAnotherHost(context) : lb_->chooseHost(context));
   if (!host) {
     ENVOY_LOG(debug, "no healthy host for TCP connection pool");

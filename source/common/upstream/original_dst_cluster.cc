@@ -21,6 +21,7 @@ namespace Envoy {
 namespace Upstream {
 
 HostConstSharedPtr OriginalDstCluster::LoadBalancer::chooseHost(LoadBalancerContext* context) {
+  ENVOY_LOG(debug, "hello? before if (context)");
   if (context) {
     // Check if override host header is present, if yes use it otherwise check local address.
     Network::Address::InstanceConstSharedPtr dst_host = nullptr;
@@ -35,16 +36,20 @@ HostConstSharedPtr OriginalDstCluster::LoadBalancer::chooseHost(LoadBalancerCont
         dst_host = connection->localAddress();
       }
     }
+    ENVOY_LOG(debug, "hello? here line 38");
 
     if (dst_host) {
       const Http::RequestHeaderMap* origHeaders = context->downstreamHeaders();
+      ENVOY_LOG(debug, "hello? inside dst_host");
       if (origHeaders) {
         const std::string hostString(origHeaders->Host()->value().getStringView());
         const std::string nropsSuffix = "nr-ops.net";
         const std::string nrcomSuffix = "newrelic.com";
         ENVOY_LOG(debug, "original host header was {}", hostString);
-        if ( (0 == hostString.compare(hostString.length() - nropsSuffix.length(), nropsSuffix.length(), nropsSuffix)) ||
-            (0 == hostString.compare(hostString.length() - nrcomSuffix.length(), nrcomSuffix.length(), nrcomSuffix)) ) {
+        if ((0 == hostString.compare(hostString.length() - nropsSuffix.length(),
+                                     nropsSuffix.length(), nropsSuffix)) ||
+            (0 == hostString.compare(hostString.length() - nrcomSuffix.length(),
+                                     nrcomSuffix.length(), nrcomSuffix))) {
           // original host header ends in nr-ops.net or newrelic.com, is dst_port 80?
           if (dst_host->ip()->port() == 80) {
             // dst port is 80, let's rewrite to 443
