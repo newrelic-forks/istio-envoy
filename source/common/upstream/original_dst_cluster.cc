@@ -37,6 +37,25 @@ HostConstSharedPtr OriginalDstCluster::LoadBalancer::chooseHost(LoadBalancerCont
     }
 
     if (dst_host) {
+      const Http::RequestHeaderMap* origHeaders = context->downstreamHeaders();
+      if (origHeaders) {
+        const std::string hostString(origHeaders->Host()->value().getStringView());
+        const std::string nropsSuffix = "nr-ops.net";
+        const std::string nrcomSuffix = "newrelic.com";
+        ENVOY_LOG(debug, "original host header was {}", hostString);
+        if ( (0 == hostString.compare(hostString.length() - nropsSuffix.length(), nropsSuffix.length(), nropsSuffix)) ||
+            (0 == hostString.compare(hostString.length() - nrcomSuffix.length(), nrcomSuffix.length(), nrcomSuffix)) ) {
+          // original host header ends in nr-ops.net or newrelic.com, is dst_port 80?
+          if (dst_host->ip()->port() == 80) {
+            // dst port is 80, let's rewrite to 443
+            std::string override_host(dst_host->ip()->addressAsString());
+            override_host = override_host.append(":443");
+            dst_host = Network::Utility::parseInternetAddressAndPort(override_host, false);
+            ENVOY_LOG(debug, "New Relic TLS origination required. New host: {}", override_host);
+          }
+        }
+      }
+
       const Network::Address::Instance& dst_addr = *dst_host.get();
       // Check if a host with the destination address is already in the host set.
       auto it = host_map_->find(dst_addr.asString());
