@@ -20,7 +20,7 @@ ENV CGO_ENABLED=0
 RUN go build -o server
 
 # Build the main container (Linux Runtime)
-FROM alpine:latest
+FROM alpine:3.18.3
 WORKDIR /root/
 
 # Copy the linux amd64 binary
